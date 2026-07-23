@@ -34,7 +34,7 @@ def valdi_android_aar(
         so_name,
         native_deps,
         excluded_class_path_patterns = [],
-        additional_assets = [],
+        additional_aar_entries = [],
         tags = [],
         java_deps = []):
     jar_name = "{}_jar".format(name)
@@ -50,6 +50,8 @@ def valdi_android_aar(
         linkopts = [
             "-fuse-ld=lld",
             "--no-undefined",
+            "-Wl,-z,max-page-size=16384",
+            "-Wl,-z,common-page-size=16384",
             "-landroid",
             "-ldl",
             "-llog",
@@ -99,7 +101,7 @@ def valdi_android_aar(
         classes_jar = ":{}".format(jar_name),
         native_libs = [":{}".format(so_name)],
         platforms = android_aar_platforms(),
-        additional_assets = additional_assets,
+        additional_aar_entries = additional_aar_entries,
         tags = tags,
         proguard_spec = "@valdi//src:client_proguard-rules",
         visibility = ["//visibility:public"],

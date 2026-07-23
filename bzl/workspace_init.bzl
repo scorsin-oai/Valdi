@@ -65,7 +65,16 @@ platform_dependency_rule = repository_rule(
     environ = ["VALDI_PLATFORM_DEPENDENCIES"],
 )
 
-def _register_android_deps():
+def _register_android_ndk_repository(android_ndk_api_level = None):
+    if android_ndk_api_level != None:
+        android_ndk_repository(
+            name = "androidndk",
+            api_level = android_ndk_api_level,
+        )
+    else:
+        android_ndk_repository(name = "androidndk")
+
+def _register_android_deps(android_ndk_api_level = None):
     rules_android_workspace()
 
     native.register_toolchains(
@@ -73,7 +82,7 @@ def _register_android_deps():
         "@rules_android//toolchains/android_sdk:android_sdk_tools",
     )
 
-    android_ndk_repository(name = "androidndk")
+    _register_android_ndk_repository(android_ndk_api_level)
 
     native.register_toolchains("@androidndk//:all")
 
@@ -152,7 +161,7 @@ def _register_nodejs_deps():
         node_version = CURRENT_NODE_VERSION,
     )
 
-def valdi_initialize_workspace(target_platform = ""):
+def valdi_initialize_workspace(target_platform = "", android_ndk_api_level = None):
     # platform strings expected to match BUILD_FLAGS in constants.ts
     is_apple = (target_platform == "ios") or (target_platform == "macos")
     if is_apple or target_platform == "":
@@ -172,7 +181,7 @@ def valdi_initialize_workspace(target_platform = ""):
 
     # platform string expected to match BUILD_FLAGS in constants.ts
     if target_platform == "android" or target_platform == "":
-        _register_android_deps()
+        _register_android_deps(android_ndk_api_level)
 
     bazel_features_deps()
 

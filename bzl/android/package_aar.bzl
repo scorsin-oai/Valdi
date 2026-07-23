@@ -126,14 +126,13 @@ def _impl(ctx):
             output_dir = aar_dir.path,
         ))
 
-    mkdirs["assets"] = True
-    for additional_asset in ctx.attr.additional_assets:
-        additional_assets = additional_asset.files.to_list()
+    for additional_aar_entry in ctx.attr.additional_aar_entries:
+        additional_aar_entries = additional_aar_entry.files.to_list()
 
-        for file in additional_assets:
+        for file in additional_aar_entries:
             inputs.append(file)
-            extra_cp_commands.append("unzip -qq {additional_asset} -d {output_dir}/assets/".format(
-                additional_asset = file.path,
+            extra_cp_commands.append("unzip -nqq {additional_aar_entry} -d {output_dir}/".format(
+                additional_aar_entry = file.path,
                 output_dir = aar_dir.path,
             ))
 
@@ -257,7 +256,7 @@ _package_aar_internal = rule(
             ),
         ),
         "additional_jars": attr.label_list(),
-        "additional_assets": attr.label_list(),
+        "additional_aar_entries": attr.label_list(),
         "_zip_relative": attr.label(
             default = "//bzl/android:zip_relative",
             executable = True,

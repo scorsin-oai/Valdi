@@ -69,6 +69,7 @@ echo "Verifying AAR contents..."
 EXPECTED_MODULES=(
     "coreutils"
     "hello_world"
+    "hello_world_asset_dep"
     "jasmine"
     "source_map"
     "valdi_core"
@@ -78,6 +79,18 @@ EXPECTED_MODULES=(
 # Expected JNI library
 EXPECTED_LIBS=(
     "jni/arm64-v8a/libhello_world_export.so"
+)
+
+# Expected generated Android image resources from the exported module graph.
+# hello_world_asset_dep is intentionally a dependency of hello_world so this
+# verifies valdi_exported_library packages resources from dependent modules.
+EXPECTED_RESOURCES=(
+    "res/drawable-hdpi/hello_world_asset_dep_dependency_badge.webp"
+    "res/drawable-mdpi/hello_world_asset_dep_dependency_badge.webp"
+    "res/drawable-xhdpi/hello_world_asset_dep_dependency_badge.webp"
+    "res/drawable-xxhdpi/hello_world_asset_dep_dependency_badge.webp"
+    "res/drawable-xxxhdpi/hello_world_asset_dep_dependency_badge.webp"
+    "res/raw/valdi_hello_world_asset_dep_keep.xml"
 )
 
 MISSING_FILES=()
@@ -107,6 +120,18 @@ for module in "${EXPECTED_MODULES[@]}"; do
     fi
 done
 
+# Check for Android resources generated from image assets.
+echo ""
+echo "Checking generated Android image resources..."
+for resource in "${EXPECTED_RESOURCES[@]}"; do
+    if unzip -l "$AAR_PATH" | grep -q "$resource"; then
+        echo "[OK] Found: $resource"
+    else
+        echo "[MISSING] $resource"
+        MISSING_FILES+=("$resource")
+    fi
+done
+
 # Check for native libraries
 echo ""
 echo "Checking JNI libraries..."
@@ -123,6 +148,10 @@ done
 echo ""
 echo "All assets in AAR:"
 unzip -l "$AAR_PATH" | grep "assets/" || echo "  (none)"
+
+echo ""
+echo "All Android resources in AAR:"
+unzip -l "$AAR_PATH" | grep "res/" || echo "  (none)"
 
 echo ""
 echo "All JNI libraries in AAR:"
@@ -149,6 +178,7 @@ echo "================================================================"
 echo "The valdi_exported_library correctly packages:"
 echo "  - ${#EXPECTED_MODULES[@]} .valdimodule files (${EXPECTED_MODULES[*]})"
 echo "  - ${#EXPECTED_MODULES[@]} .map.json sourcemap files"
+echo "  - Generated Android image resources from dependent modules"
 echo "  - Native library (libhello_world_export.so)"
 
 # --- iOS export test (macOS only; CI is often Linux so we skip there) ---
@@ -285,4 +315,3 @@ fi
 rm -rf "$OUTPUT_DIR"
 
 popd
-

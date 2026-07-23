@@ -45,3 +45,9 @@ cc_library(
     ]),
     strip_include_prefix = "include/quickjs",
 )
+
+cc_test(
+    name = "jsvalue_layout_test",
+    srcs = ["test/jsvalue_layout_test.c"],
+    deps = [":quickjs"],
+)

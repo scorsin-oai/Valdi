@@ -15,6 +15,7 @@
 #include "valdi_core/jni/JavaException.hpp"
 #include "valdi_core/jni/JavaMethod.hpp"
 #include "valdi_core/jni/JavaUtils.hpp"
+#include "utils/debugging/Assert.hpp"
 
 namespace ValdiAndroid {
 
@@ -63,6 +64,12 @@ JNIEnv* JavaEnv::getUnsafeEnv() {
     }
 
     env = snap::utils::platform::getEnv();
+    if (env == nullptr) {
+        snap::utils::platform::attachThreadIfNeeded("Valdi JNI");
+        env = snap::utils::platform::getEnv();
+        SC_ASSERT(env != nullptr);
+    }
+
     attachedEnv = env;
     return env;
 }

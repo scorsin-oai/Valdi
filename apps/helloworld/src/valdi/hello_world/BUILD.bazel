@@ -47,6 +47,7 @@ valdi_module(
         "hello_world/web/NativeModule.js": "hello_world/src/NativeModule",
     },
     deps = [
+        "//apps/helloworld/src/valdi/hello_world_asset_dep",
         "//src/valdi_modules/src/valdi/valdi_core",
         "//src/valdi_modules/src/valdi/valdi_tsx",
     ],

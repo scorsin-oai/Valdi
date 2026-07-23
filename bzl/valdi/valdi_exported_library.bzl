@@ -6,7 +6,6 @@ load("//bzl/valdi:rewrite_hdrs.bzl", "rewrite_hdrs")
 load("//bzl/valdi:suffixed_deps.bzl", "get_suffixed_deps")
 load("//bzl/valdi:valdi_collapse_web_paths.bzl", "collapse_native_paths", "collapse_web_paths", "generate_native_module_map", "generate_register_native_modules")
 load("//bzl/valdi:valdi_protodecl_to_js.bzl", "collapse_protodecl_paths", "protodecl_to_js_dir")
-load("//bzl/valdi/source_set:utils.bzl", "source_set_select")
 load("//valdi:valdi.bzl", "valdi_android_aar")
 
 _PRESERVED_MODULE_NAMES = ["UIKit", "Foundation", "CoreFoundation", "CoreGraphics", "QuartzCore"]
@@ -139,12 +138,7 @@ done | sed '/^import ValdiCoreSwift$$/d' > $@
 
     collect_android_assets(
         name = "{}_android_assets".format(name),
-        valdi_deps = deps,
         deps = java_deps,
-        output_target = source_set_select(
-            debug = "debug",
-            release = "release",
-        ),
     )
 
     valdi_android_aar(
@@ -153,7 +147,7 @@ done | sed '/^import ValdiCoreSwift$$/d' > $@
         native_deps = [
             "@valdi//valdi",
         ] + get_suffixed_deps(deps, "_native"),
-        additional_assets = [":{}_android_assets".format(name)],
+        additional_aar_entries = [":{}_android_assets".format(name)],
         excluded_class_path_patterns = android_excluded_class_path_patterns,
         so_name = "lib{}.so".format(name),
         tags = ["valdi_android_exported_library"],
